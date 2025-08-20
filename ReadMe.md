@@ -18,6 +18,9 @@
 - [Getting Started](#getting-started)
     - [Prerequisites](#prerequisites)
     - [Installation](#installation)
+    - [Testing](#testing)
+    - [Structure](#structure)
+      - [StructureExplained](#structureexplained)
 ---
 
 ## Overview
@@ -37,7 +40,7 @@ This project requires the following dependencies:
 - **Operating System:** Windows, Linux, or macOS
 - **Java Version:** 11 or higher
 - **Git:** For version control
-- **Android SDK: 35 or higher** For Android development
+- **Android SDK: 35 and minimal is 26** For Android development
 
 ---
 
@@ -47,15 +50,70 @@ Build AdsPay from source and install dependencies:
 1. **Clone the repository:**
    ```sh
    git clone https://github.com/dzikfr/AdsPay
+   ```
 
 2. **Navigate to the project directory:**
    ```sh
    cd AdsPay
+   ```
 
 3. **Build and install dependencies:**
    ```sh
    ./gradlew :app:assembleDebug
+   ```
 
 4. **Run the app:**
    ```sh
    ./gradlew :app:runDebug
+   ```
+
+---
+
+### Testing
+To run the tests, use the following command:
+```sh
+./gradlew test
+```
+
+---
+
+### Structure
+The project is structured as follows:
+
+```
+.
+├── README.md
+├── app
+│   ├── build.gradle
+│   ├── build.gradle.kts
+│   ├── src
+│   │   ├── main
+│   │   │   ├── AndroidManifest.xml
+│   │   │   ├── res
+│   │   │   │   ├── drawable
+│   │   │   │   └── values
+│   │   │   └── java
+│   │   │       ├── com.example.adspay
+│   │   │       │   ├── models
+│   │   │       │   ├── navigation
+│   │   │       │   ├── screens
+│   │   │       │   ├── services
+│   │   │       │   ├── ui
+│   │   │       │   │   ├── components
+│   │   │       │   │   ├── theme
+│   │   │       │   ├── utils
+│   │   │       │   ├── MainActivity.kt
+```
+
+---
+
+#### StructureExplained
+- **models :** this folder contains all the data models used in the project
+- **navigation :** this folder contains all the navigation components used in the project
+- **screens :** this folder contains all the screens used in the project
+- **services :** this folder contains all the API services used in the project
+- **ui :** there is component folder and theme folder
+- **components :** this folder contains all the components used in the project
+- **theme :** this folder contains all the theme used in the project
+- **utils :** this folder contains all the utils used in the project
+- **MainActivity.kt :** this file contains the main activity of the project
