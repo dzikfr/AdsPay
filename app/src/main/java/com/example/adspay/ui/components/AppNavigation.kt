@@ -7,6 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.adspay.screens.*
 import com.example.adspay.screens.home.*
+import com.example.adspay.screens.history.*
 
 @Composable
 fun AppNavigation(
@@ -29,5 +30,9 @@ fun AppNavigation(
         composable("token") { TokenScreen(navController) }
         composable("promotion") { PromotionScreen(navController) }
         composable("history") { HistoryScreen(navController) }
+        composable("historyDetail/{historyId}") { backStackEntry ->
+            val historyId = backStackEntry.arguments?.getString("historyId") ?: ""
+            HistoryDetailScreen(navController, historyId)
+        }
     }
 }
