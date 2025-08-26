@@ -1,12 +1,14 @@
 package com.example.adspay.models.promotion
 
-//noinspection SuspiciousImport
-import android.R
-
-data class Promotion (
+data class Promotion(
     val id: String,
-    val promotionName: String,
-    val durationLeft: String,
-    val totalPrice: R.integer? = null,
-    val discountRate: UByte? = null
+    val imageUrl: String,
+    val title: String? = null,
+    val description: String? = null,
+    val link: String? = null
+)
+
+data class PromotionCategory(
+    val name: String,
+    val promotions: List<Promotion>
 )
