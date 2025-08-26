@@ -18,20 +18,16 @@ fun NetworkImage(
     modifier: Modifier = Modifier,
     contentScale: ContentScale = ContentScale.Crop
 ) {
-    var bitmap by remember { mutableStateOf<Bitmap?>(null) }
-
-    LaunchedEffect(url) {
-        withContext(Dispatchers.IO) {
-            try {
-                val stream = URL(url).openStream()
-                bitmap = BitmapFactory.decodeStream(stream)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
+    val bitmapState = produceState<Bitmap?>(initialValue = null, url) {
+        try {
+            val stream = withContext(Dispatchers.IO) { URL(url).openStream() }
+            value = BitmapFactory.decodeStream(stream)
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
-    bitmap?.let {
+    bitmapState.value?.let {
         Image(
             bitmap = it.asImageBitmap(),
             contentDescription = contentDescription,

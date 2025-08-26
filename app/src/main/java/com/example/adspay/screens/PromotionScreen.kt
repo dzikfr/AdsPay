@@ -12,8 +12,6 @@ import com.example.adspay.services.PromotionService
 import com.example.adspay.ui.components.PromotionCarousel
 import kotlinx.coroutines.launch
 import androidx.compose.ui.platform.LocalContext
-import com.example.adspay.models.history.History
-import kotlin.String
 import com.example.adspay.models.promotion.Promotion
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -30,21 +28,21 @@ fun PromotionScreen(navController: NavController) {
             promotions = listOf(
                 Promotion(
                     id = "String",
-                    imageUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRb04Qmhrxv5TDxE60ec3-Gyo_FsnuULS59Tw&s",
+                    imageUrl = "https://img.icons8.com/color/48/money-bag.png",
                     title= "String",
                     description= null,
                     link= null
                 ),
                 Promotion(
                     id = "String",
-                    imageUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRb04Qmhrxv5TDxE60ec3-Gyo_FsnuULS59Tw&s",
+                    imageUrl = "https://img.icons8.com/color/48/money-bag.png",
                     title= "String",
                     description= null,
                     link= null
                 ),
                 Promotion(
                     id = "String",
-                    imageUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRb04Qmhrxv5TDxE60ec3-Gyo_FsnuULS59Tw&s",
+                    imageUrl = "https://img.icons8.com/color/48/money-bag.png",
                     title= "String",
                     description= null,
                     link= null
@@ -56,28 +54,28 @@ fun PromotionScreen(navController: NavController) {
             promotions = listOf(
                 Promotion(
                     id = "String",
-                    imageUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRb04Qmhrxv5TDxE60ec3-Gyo_FsnuULS59Tw&s",
+                    imageUrl = "https://picsum.photos/200/300",
                     title= "String",
                     description= null,
                     link= null
                 ),
                 Promotion(
                     id = "String",
-                    imageUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRb04Qmhrxv5TDxE60ec3-Gyo_FsnuULS59Tw&s",
+                    imageUrl = "https://picsum.photos/200/300",
                     title= "String",
                     description= null,
                     link= null
                 ),
                 Promotion(
                     id = "String",
-                    imageUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRb04Qmhrxv5TDxE60ec3-Gyo_FsnuULS59Tw&s",
+                    imageUrl = "https://picsum.photos/200/300",
                     title= "String",
                     description= null,
                     link= null
                 ),
                 Promotion(
                     id = "String",
-                    imageUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRb04Qmhrxv5TDxE60ec3-Gyo_FsnuULS59Tw&s",
+                    imageUrl = "https://picsum.photos/200/300",
                     title= "String",
                     description= null,
                     link= null
