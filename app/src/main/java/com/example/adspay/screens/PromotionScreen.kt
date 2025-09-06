@@ -8,7 +8,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import com.example.adspay.models.promotion.PromotionCategory
-import com.example.adspay.services.PromotionService
 import com.example.adspay.ui.components.PromotionCarousel
 import kotlinx.coroutines.launch
 import androidx.compose.ui.platform.LocalContext
@@ -18,7 +17,6 @@ import com.example.adspay.models.promotion.Promotion
 @Composable
 fun PromotionScreen(navController: NavController) {
     val context = LocalContext.current
-    val promotionService = remember { PromotionService(context) }
     var categories by remember { mutableStateOf<List<PromotionCategory>>(emptyList()) }
     val coroutineScope = rememberCoroutineScope()
 

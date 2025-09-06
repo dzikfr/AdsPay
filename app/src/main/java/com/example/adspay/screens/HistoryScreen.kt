@@ -11,7 +11,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.adspay.models.history.History
-import com.example.adspay.services.HistoryService
+//import com.example.adspay.services.HistoryService
 import com.example.adspay.ui.components.HistoryCard
 import kotlinx.coroutines.launch
 
@@ -171,7 +171,7 @@ fun HistoryScreen(navController: NavController) {
         )
     )
     val context = LocalContext.current
-    val historyService = remember { HistoryService(context) }
+//    val historyService = remember { HistoryService(context) }
 
 //    var histories by remember { mutableStateOf<List<History>>(emptyList()) }
     var histories by remember { mutableStateOf(dummyHistories) }

@@ -8,25 +8,28 @@ class SessionManager(context: Context) {
     private val prefs: SharedPreferences =
         context.getSharedPreferences("user_session", Context.MODE_PRIVATE)
 
-    fun saveUserSession(token: String, userId: String, username: String) {
-        prefs.edit().apply {
-            putString("token", token)
-            putString("userId", userId)
-            putString("username", username)
-            apply()
+    fun saveAuthSession(accessToken: String, refreshToken: String, expiresIn: Int) {
+        prefs.edit {
+            putString("access_token", accessToken)
+            putString("refresh_token", refreshToken)
+            putLong("expires_at", System.currentTimeMillis() + (expiresIn * 1000))
         }
     }
 
-    fun getToken(): String? {
-        return prefs.getString("token", null)
-    }
+    fun getAccessToken(): String? = prefs.getString("access_token", null)
 
+    fun getRefreshToken(): String? = prefs.getString("refresh_token", null)
 
-    fun isLoggedIn(): Boolean {
-        return !prefs.getString("token", null).isNullOrEmpty()
+    fun isAccessTokenExpired(): Boolean {
+        val expiresAt = prefs.getLong("expires_at", 0L)
+        return System.currentTimeMillis() >= expiresAt
     }
 
     fun clearSession() {
         prefs.edit { clear() }
+    }
+
+    fun isLoggedIn(): Boolean {
+        return !getAccessToken().isNullOrEmpty() && !isAccessTokenExpired()
     }
 }
