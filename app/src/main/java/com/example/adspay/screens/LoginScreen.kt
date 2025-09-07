@@ -95,6 +95,15 @@ fun LoginScreen(navController: NavController) {
             ) {
                 Text("Login")
             }
+            Spacer(modifier = Modifier.height(16.dp))
+
+            TextButton(
+                onClick = {
+                    navController.navigate("registerPhone")
+                }
+            ) {
+                Text("Belum punya akun? Daftar")
+            }
         }
     }
 }

@@ -9,6 +9,12 @@ import com.example.adspay.screens.*
 import com.example.adspay.screens.home.*
 import com.example.adspay.screens.history.*
 import com.example.adspay.screens.promotion.*
+import com.example.adspay.services.RegisterService
+import androidx.compose.ui.platform.LocalContext
+import com.example.adspay.screens.register.RegisterFormScreen
+import com.example.adspay.screens.register.RegisterOtpScreen
+import com.example.adspay.screens.register.RegisterPhoneScreen
+import com.example.adspay.screens.register.RegisterPinScreen
 
 @Composable
 fun AppNavigation(
@@ -39,6 +45,20 @@ fun AppNavigation(
             val promoId = backStackEntry.arguments?.getString("promoId") ?: ""
             PromotionDetailScreen(navController, promoId)
         }
-
+        composable("registerPhone") {
+            RegisterPhoneScreen(navController, RegisterService(LocalContext.current))
+        }
+        composable("registerOtp/{phone}") { backStack ->
+            val phone = backStack.arguments?.getString("phone") ?: ""
+            RegisterOtpScreen(navController, RegisterService(LocalContext.current), phone)
+        }
+        composable("registerForm/{phone}") { backStack ->
+            val phone = backStack.arguments?.getString("phone") ?: ""
+            RegisterFormScreen(navController = navController, initialPhone = phone)
+        }
+        composable("registerPin") {
+            val registerService = RegisterService(LocalContext.current)
+            RegisterPinScreen(navController = navController, registerService = registerService)
+        }
     }
 }

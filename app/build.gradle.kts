@@ -16,8 +16,6 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        buildConfigField("String", "AUTH_BASE_URL", "\"https://auth.devmj.web.id/\"")
-        buildConfigField("String", "CLIENT_ID", "\"adspay-mobile-client\"")
     }
 
     buildTypes {
@@ -38,6 +36,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
