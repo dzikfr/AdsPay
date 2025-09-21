@@ -10,6 +10,7 @@ import androidx.compose.ui.*
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.shape.CircleShape
 
 data class MenuItem(
     val label: String,
@@ -51,41 +52,41 @@ fun IconMenuGrid(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 rowItems.forEach { item ->
-                    Surface(
+                    Column(
                         modifier = Modifier
                             .weight(1f)
-                            .aspectRatio(1f)
                             .clickable { item.onClick() },
-                        color = MaterialTheme.colorScheme.surfaceVariant,
-                        shape = MaterialTheme.shapes.medium,
-                        tonalElevation = 4.dp,
-                        shadowElevation = 2.dp
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        CompositionLocalProvider(
-                            LocalContentColor provides MaterialTheme.colorScheme.onSurfaceVariant
+                        Surface(
+                            modifier = Modifier
+                                .size(48.dp) // ukuran lingkaran
+                                .clip(CircleShape),
+                            color = MaterialTheme.colorScheme.surfaceVariant,
+                            shape = CircleShape,
+                            tonalElevation = 4.dp,
+                            shadowElevation = 2.dp
                         ) {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(12.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
                             ) {
                                 Icon(
                                     imageVector = item.icon,
                                     contentDescription = item.label,
-                                    modifier = Modifier.size(24.dp)
-                                )
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text(
-                                    item.label,
-                                    style = MaterialTheme.typography.bodySmall,
-                                    maxLines = 1
+                                    modifier = Modifier.size(28.dp),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                         }
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text(
+                            text = item.label,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            maxLines = 1
+                        )
                     }
-
                 }
                 // Fill empty space if rowItems < columns
                 repeat(columns - rowItems.size) {

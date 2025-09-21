@@ -1,5 +1,6 @@
 package com.example.adspay.screens.register
 
+import androidx.compose.foundation.background
 import androidx.compose.runtime.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -9,6 +10,10 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.navigation.NavController
 import kotlinx.coroutines.launch
 import com.example.adspay.models.auth.PartialRegisterData
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.ui.text.input.VisualTransformation
 
 @Composable
 fun RegisterFormScreen(
@@ -19,6 +24,10 @@ fun RegisterFormScreen(
     var lastName by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
+
+    var passwordVisible by remember { mutableStateOf(false) }
+    var confirmPasswordVisible by remember { mutableStateOf(false) }
 
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
@@ -28,7 +37,9 @@ fun RegisterFormScreen(
             ?.savedStateHandle
             ?.get<String>("registration_token")
 
-    Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }) { padding ->
+    Scaffold(snackbarHost = {
+        SnackbarHost(snackbarHostState) }
+    ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -64,8 +75,32 @@ fun RegisterFormScreen(
                 value = password,
                 onValueChange = { password = it },
                 label = { Text("Password") },
-                visualTransformation = PasswordVisualTransformation(),
-                modifier = Modifier.fillMaxWidth()
+                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                trailingIcon = {
+                    val image = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
+                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                        Icon(imageVector = image, contentDescription = null)
+                    }
+                },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
+
+            Spacer(Modifier.height(8.dp))
+
+            OutlinedTextField(
+                value = confirmPassword,
+                onValueChange = { confirmPassword = it },
+                label = { Text("Konfirmasi Password") },
+                visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                trailingIcon = {
+                    val image = if (confirmPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
+                    IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
+                        Icon(imageVector = image, contentDescription = null)
+                    }
+                },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
             )
 
             Spacer(Modifier.height(16.dp))
@@ -73,8 +108,18 @@ fun RegisterFormScreen(
             Button(
                 onClick = {
                     coroutineScope.launch {
-                        if (firstName.isBlank() || email.isBlank() || password.length < 6) {
-                            snackbarHostState.showSnackbar("Lengkapi data (password min 6 karakter).")
+                        if (firstName.isBlank() || email.isBlank()) {
+                            snackbarHostState.showSnackbar("Please fill all required fields.")
+                            return@launch
+                        }
+
+                        if (password.length < 6) {
+                            snackbarHostState.showSnackbar("Password must be at least 6 characters long.")
+                            return@launch
+                        }
+
+                        if (password != confirmPassword) {
+                            snackbarHostState.showSnackbar("Password and confirmation password do not match.")
                             return@launch
                         }
 
@@ -94,7 +139,7 @@ fun RegisterFormScreen(
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Lanjut ke Set PIN")
+                Text("Confirm")
             }
         }
     }

@@ -4,13 +4,16 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavController
 import kotlinx.coroutines.launch
 import com.example.adspay.models.auth.PartialRegisterData
 import com.example.adspay.models.auth.RegisterRequest
 import com.example.adspay.services.RegisterService
+import com.example.adspay.ui.components.PinInput
+import retrofit2.HttpException
 
 @Composable
 fun RegisterPinScreen(
@@ -39,21 +42,32 @@ fun RegisterPinScreen(
                 .padding(24.dp),
             verticalArrangement = Arrangement.Center
         ) {
-            OutlinedTextField(
-                value = pin,
-                onValueChange = { new -> pin = new.filter { it.isDigit() }.take(6) },
-                label = { Text("PIN (6 digit)") },
-                visualTransformation = PasswordVisualTransformation(),
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth()
+            Text(
+                text = "Set Your 6-Digit PIN",
+                style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center
             )
-            Spacer(Modifier.height(16.dp))
+
+            Spacer(Modifier.height(24.dp))
+
+            PinInput(
+                pin = pin,
+                onPinChange = { pin = it },
+                pinLength = 6
+            )
+
+            Spacer(Modifier.height(24.dp))
 
             Button(
                 onClick = {
                     coroutineScope.launch {
                         if (partial == null || registrationToken == null) {
                             snackbarHostState.showSnackbar("Data registrasi tidak lengkap.")
+                            return@launch
+                        }
+                        if (pin.length < 6) {
+                            snackbarHostState.showSnackbar("PIN harus 6 digit.")
                             return@launch
                         }
 
@@ -68,16 +82,18 @@ fun RegisterPinScreen(
 
                         try {
                             val res = registerService.registerUser(req, registrationToken)
-                            if (res.success) {
+                            if (res.respCode == "00") {
                                 snackbarHostState.showSnackbar("Registrasi berhasil!")
                                 navController.navigate("login") {
                                     popUpTo("registerPhone") { inclusive = true }
                                 }
                             } else {
-                                snackbarHostState.showSnackbar(res.message)
+                                snackbarHostState.showSnackbar(res.respMessage)
                             }
                         } catch (e: Exception) {
                             snackbarHostState.showSnackbar("Gagal registrasi: ${e.localizedMessage}")
+                        } catch (e: HttpException){
+                            snackbarHostState.showSnackbar("Serevr Error: ${e.message()}")
                         }
                     }
                 },
@@ -86,5 +102,6 @@ fun RegisterPinScreen(
                 Text("Selesaikan Registrasi")
             }
         }
+
     }
 }

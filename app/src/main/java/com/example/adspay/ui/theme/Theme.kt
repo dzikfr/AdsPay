@@ -36,10 +36,10 @@ fun Theme(
         )
     } else {
         lightColorScheme(
-            primary = Purple40,
-            secondary = PurpleGrey40,
-            tertiary = Pink40,
-            background = WhiteBg,
+            primary = Color(0xFF5409DA),
+            secondary = Color(0xFF4E71FF),
+            tertiary = Color(0xFF8DD8FF),
+            background = Color(0xFFBBFBFF),
             surface = Color(0xFFFFFFFF)
         )
     }

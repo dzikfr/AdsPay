@@ -20,7 +20,7 @@ fun BottomNavBar(
     val middleIndex = if (isOdd) items.size / 2 else -1
 
     NavigationBar(
-        containerColor = MaterialTheme.colorScheme.primaryContainer
+        containerColor = MaterialTheme.colorScheme.surface
     ) {
         items.forEachIndexed { index, screen ->
             val isSelected = currentRoute == screen.route
