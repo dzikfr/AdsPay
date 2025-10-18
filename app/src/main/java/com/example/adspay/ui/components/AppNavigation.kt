@@ -35,6 +35,7 @@ fun AppNavigation(
         composable("qris") { QrisScreen() }
         composable("profile") { ProfileScreen(isDarkMode, toggleTheme, navController) }
         composable("pulsa") { PulsaScreen(navController) }
+        composable("kycStart") { KycInitScreen(navController) }
         composable("kyc") { KycFormScreen(navController) }
         composable("token") { TokenScreen(navController) }
         composable("promotion") { PromotionScreen(navController) }

@@ -2,6 +2,8 @@ package com.example.adspay.screens.register
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import androidx.core.content.FileProvider
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -31,6 +33,10 @@ import android.content.pm.PackageManager
 import androidx.core.content.ContextCompat
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.text.TextRecognition
+import com.google.mlkit.vision.text.latin.TextRecognizerOptions
+import android.util.Log
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -41,6 +47,8 @@ fun KycFormScreen(navController: NavController) {
     val baseUrl = "http://38.47.94.165:3123"
     val retrofit = remember { ApiClient.create(context, baseUrl) }
     val apiService = remember { retrofit.create(UserService::class.java) }
+    var showCamera by remember { mutableStateOf(false) }
+
 
     var nik by remember { mutableStateOf("") }
     var fullName by remember { mutableStateOf("") }
@@ -62,12 +70,11 @@ fun KycFormScreen(navController: NavController) {
     val ktpBitmap = remember { mutableStateOf<Bitmap?>(null) }
     val selfieBitmap = remember { mutableStateOf<Bitmap?>(null) }
 
-    val ktpLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicturePreview()) {
-        if (it != null) {
-            ktpBitmap.value = it
-        } else {
-            Toast.makeText(context, "Gagal ambil gambar KTP", Toast.LENGTH_SHORT).show()
-        }
+    val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+
+    val tmpKtpUri = remember {
+        val file = File(context.cacheDir, "ktp_temp.jpg")
+        FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
     }
 
     val selfieLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicturePreview()) {
@@ -93,6 +100,38 @@ fun KycFormScreen(navController: NavController) {
             },
             1990, 0, 1
         ).show()
+    }
+
+    if (showCamera) {
+        KtpCameraScreen(
+            onCapture = { bitmap ->
+                // tampilkan hasil ke layar form
+                ktpBitmap.value = bitmap
+                showCamera = false
+
+                // jalankan OCR otomatis
+                val image = InputImage.fromBitmap(bitmap, 0)
+                recognizer.process(image)
+                    .addOnSuccessListener { visionText ->
+                        val text = visionText.text
+                        Log.d("OCR_RESULT", text)
+
+                        val nikRegex = Regex("\\b\\d{16}\\b")
+                        val nameRegex = Regex("Nama\\s*:?\\s*([A-Z ]+)", RegexOption.IGNORE_CASE)
+
+                        val nikFound = nikRegex.find(text)?.value ?: ""
+                        val nameFound = nameRegex.find(text)?.groupValues?.get(1)?.trim() ?: ""
+
+                        if (nikFound.isNotEmpty()) nik = nikFound
+                        if (nameFound.isNotEmpty()) fullName = nameFound
+                    }
+                    .addOnFailureListener { e ->
+                        Toast.makeText(context, "OCR gagal: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+                    }
+            },
+            onClose = { showCamera = false }
+        )
+        return
     }
 
     Column(
@@ -156,12 +195,7 @@ fun KycFormScreen(navController: NavController) {
 
         Text("Foto KTP:")
         CaptureImageButton(bitmap = ktpBitmap.value) {
-            if (ContextCompat.checkSelfPermission(context, android.Manifest.permission.CAMERA)
-                == PackageManager.PERMISSION_GRANTED) {
-                ktpLauncher.launch(null)
-            } else {
-                permissionLauncher.launch(android.Manifest.permission.CAMERA)
-            }
+            showCamera = true
         }
 
         Spacer(modifier = Modifier.height(8.dp))

@@ -124,7 +124,11 @@ private fun processImageProxy(
         val image = InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
         recognizer.process(image)
             .addOnSuccessListener { visionText ->
-                onResult(visionText.text)
+                val result = visionText.text
+                Log.d("OCR_RESULT", result)
+
+                // Set ke ViewModel global (misal disimpan di companion object)
+                KycOcrResultHolder.ocrText = result
             }
             .addOnFailureListener { e ->
                 onResult("Gagal mengenali teks: ${e.localizedMessage}")
@@ -135,4 +139,8 @@ private fun processImageProxy(
     } else {
         imageProxy.close()
     }
+}
+
+object KycOcrResultHolder {
+    var ocrText: String = ""
 }
