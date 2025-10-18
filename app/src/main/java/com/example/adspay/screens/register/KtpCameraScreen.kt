@@ -57,9 +57,11 @@ fun KtpCameraScreen(onCapture: (Bitmap) -> Unit, onClose: () -> Unit) {
             requestPermissionLauncher.launch(Manifest.permission.CAMERA)
         } else {
             val cameraProvider = cameraProviderFuture.get()
-            val preview = Preview.Builder().build().also {
-                it.setSurfaceProvider(previewView.surfaceProvider)
-            }
+            val preview = Preview.Builder()
+                .setTargetAspectRatio(AspectRatio.RATIO_16_9)
+                .build().also {
+                    it.setSurfaceProvider(previewView.surfaceProvider)
+                }
 
             val capture = ImageCapture.Builder()
                 .setTargetAspectRatio(AspectRatio.RATIO_16_9)

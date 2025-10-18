@@ -2,8 +2,7 @@ package com.example.adspay.screens.register
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import androidx.core.content.FileProvider
+import com.example.adspay.utils.KtpOcrUtils
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -36,7 +35,6 @@ import androidx.compose.foundation.verticalScroll
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
-import android.util.Log
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -72,11 +70,6 @@ fun KycFormScreen(navController: NavController) {
 
     val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
 
-    val tmpKtpUri = remember {
-        val file = File(context.cacheDir, "ktp_temp.jpg")
-        FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
-    }
-
     val selfieLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicturePreview()) {
         if (it != null) {
             selfieBitmap.value = it
@@ -105,25 +98,21 @@ fun KycFormScreen(navController: NavController) {
     if (showCamera) {
         KtpCameraScreen(
             onCapture = { bitmap ->
-                // tampilkan hasil ke layar form
                 ktpBitmap.value = bitmap
                 showCamera = false
 
-                // jalankan OCR otomatis
-                val image = InputImage.fromBitmap(bitmap, 0)
+                val processedBitmap = with(KtpOcrUtils) { bitmap.toGrayscale() }
+                val image = InputImage.fromBitmap(processedBitmap, 0)
                 recognizer.process(image)
                     .addOnSuccessListener { visionText ->
-                        val text = visionText.text
-                        Log.d("OCR_RESULT", text)
-
-                        val nikRegex = Regex("\\b\\d{16}\\b")
-                        val nameRegex = Regex("Nama\\s*:?\\s*([A-Z ]+)", RegexOption.IGNORE_CASE)
-
-                        val nikFound = nikRegex.find(text)?.value ?: ""
-                        val nameFound = nameRegex.find(text)?.groupValues?.get(1)?.trim() ?: ""
-
-                        if (nikFound.isNotEmpty()) nik = nikFound
-                        if (nameFound.isNotEmpty()) fullName = nameFound
+                        val fields = KtpOcrUtils.parseKtpText(visionText)
+                        if (fields.nik.isNotEmpty()) nik = fields.nik
+                        if (fields.name.isNotEmpty()) fullName = fields.name
+                        if (fields.placeOfBirth.isNotEmpty()) placeOfBirth = fields.placeOfBirth
+                        if (fields.dateOfBirth.isNotEmpty()) dateOfBirth = fields.dateOfBirth
+                        if (fields.address.isNotEmpty()) address = fields.address
+                        if (fields.job.isNotEmpty()) job = fields.job
+                        if (fields.maritalStatus.isNotEmpty()) maritalStatus = fields.maritalStatus
                     }
                     .addOnFailureListener { e ->
                         Toast.makeText(context, "OCR gagal: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
