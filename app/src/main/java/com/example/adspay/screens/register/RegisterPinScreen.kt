@@ -93,7 +93,7 @@ fun RegisterPinScreen(
                         } catch (e: Exception) {
                             snackbarHostState.showSnackbar("Gagal registrasi: ${e.localizedMessage}")
                         } catch (e: HttpException){
-                            snackbarHostState.showSnackbar("Serevr Error: ${e.message()}")
+                            snackbarHostState.showSnackbar("Server Error: ${e.message()}")
                         }
                     }
                 },

@@ -7,37 +7,38 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.*
-import androidx.compose.ui.text.input.*
-import androidx.compose.ui.unit.*
-import androidx.navigation.NavController
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.foundation.text.ClickableText
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.unit.dp
+import androidx.fragment.app.FragmentActivity
+import androidx.navigation.NavController
 import com.example.adspay.services.AuthService
 import com.example.adspay.utils.SessionManager
 import kotlinx.coroutines.launch
+import android.content.ContextWrapper
+import androidx.compose.foundation.text.ClickableText
 import retrofit2.HttpException
 import java.io.IOException
 
 @Composable
 fun LoginScreen(navController: NavController) {
+    val context = LocalContext.current
+    val sessionManager = remember { SessionManager(context) }
+    val authService = remember { AuthService(context, "http://38.47.94.165:3123/") }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
+
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
-    val context = LocalContext.current
-    val snackbarHostState = remember { SnackbarHostState() }
-    val sessionManager = remember { SessionManager(context) }
-    val coroutineScope = rememberCoroutineScope()
-
-    // Base URL untuk Keycloak (beda dengan backend API)
-    val authService = remember { AuthService(context, "https://auth.devmj.web.id/") }
-    val clientId = "adspay-mobile-client"
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -53,9 +54,7 @@ fun LoginScreen(navController: NavController) {
         ) {
             Text(
                 text = "Sign-in",
-                style = MaterialTheme.typography.headlineSmall.copy(
-                    fontWeight = FontWeight.Bold
-                ),
+                style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
                 modifier = Modifier.align(Alignment.Start)
             )
 
@@ -78,10 +77,7 @@ fun LoginScreen(navController: NavController) {
                 singleLine = true,
                 visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
-                    val image = if (passwordVisible)
-                        Icons.Filled.VisibilityOff
-                    else Icons.Filled.Visibility
-
+                    val image = if (passwordVisible) Icons.Filled.VisibilityOff else Icons.Filled.Visibility
                     IconButton(onClick = { passwordVisible = !passwordVisible }) {
                         Icon(imageVector = image, contentDescription = null)
                     }
@@ -94,28 +90,21 @@ fun LoginScreen(navController: NavController) {
                 onClick = {
                     coroutineScope.launch {
                         try {
-                            val response = authService.login(
-                                clientId = clientId,
-                                username = username,
-                                password = password
-                            )
+                            val response = authService.login(username, password)
                             sessionManager.saveAuthSession(
-                                accessToken = response.accessToken,
-                                refreshToken = response.refreshToken,
-                                expiresIn = response.expiresIn
+                                accessToken = response.data.accessToken,
+                                refreshToken = response.data.refreshToken,
+                                expiresIn = response.data.expiresIn
                             )
                             navController.navigate("home") {
                                 popUpTo("login") { inclusive = true }
                             }
                         } catch (e: HttpException) {
                             snackbarHostState.showSnackbar("Login gagal: ${e.message()}")
-                            e.printStackTrace()
                         } catch (e: IOException) {
                             snackbarHostState.showSnackbar("Tidak dapat terhubung ke server.")
-                            e.printStackTrace()
                         } catch (e: Exception) {
                             snackbarHostState.showSnackbar("Terjadi kesalahan: ${e.localizedMessage}")
-                            e.printStackTrace()
                         }
                     }
                 },
@@ -135,12 +124,13 @@ fun LoginScreen(navController: NavController) {
                         )
                     )
                     Icon(
-                        imageVector = Icons.Default.ArrowForward, // panah kanan bawaan
+                        imageVector = Icons.Default.ArrowForward,
                         contentDescription = "Arrow Right",
                         tint = MaterialTheme.colorScheme.surface
                     )
                 }
             }
+
             Spacer(modifier = Modifier.height(16.dp))
 
             val signUpText = buildAnnotatedString {

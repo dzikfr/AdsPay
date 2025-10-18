@@ -1,8 +1,42 @@
 package com.example.adspay.models.user
 
-data class User(
-    val id: String,
-    val name: String,
-    val email: String,
-    val photoUrl: String? = null
+data class UserProfileResponse(
+    val resp_code: String,
+    val resp_message: String,
+    val data: UserData
+)
+
+data class UserData(
+    val userId: String,
+    val phoneNumber: String,
+    val saldo: Int,
+    val status: String,
+    val registrationStatus: String
+)
+
+data class UserDetailResponse(
+    val resp_code: String,
+    val resp_message: String,
+    val data: UserDetailData
+)
+
+data class UserDetailData(
+    val id: Int,
+    val phoneNumber: String,
+    val status: String,
+    val registrationStatus: String,
+    val saldo: Double,
+    val fullName : String?,
+    val nik : String?,
+    val placeOfBirth : String?,
+    val dob : String?,
+    val gender : String?,
+    val martialStatus : String?,
+    val job : String?,
+    val selfieUrl : String?,
+    val ktpUrl : String?,
+    val kycStatus : String?,
+    val rejectedReason : String?,
+    val requestId : String?,
+    val verifiedAt : String?
 )

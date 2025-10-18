@@ -3,7 +3,6 @@ package com.example.adspay.services
 import android.content.Context
 import com.example.adspay.utils.SessionManager
 import okhttp3.OkHttpClient
-import okhttp3.Request
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import okhttp3.logging.HttpLoggingInterceptor
@@ -18,9 +17,14 @@ object ApiClient {
         val client = OkHttpClient.Builder()
             .addInterceptor(logging)
             .addInterceptor { chain ->
-                val originalRequest: Request = chain.request()
+                val originalRequest = chain.request()
+                val urlPath = originalRequest.url.encodedPath
+
+                val skipAuth = urlPath.contains("/auth/login") || urlPath.contains("/auth/refresh") || urlPath.contains("/auth/logout")
+
                 val token = sessionManager.getAccessToken()
-                val newRequest = if (!token.isNullOrEmpty()) {
+
+                val newRequest = if (!skipAuth && !token.isNullOrEmpty()) {
                     originalRequest.newBuilder()
                         .addHeader("Authorization", "Bearer $token")
                         .build()

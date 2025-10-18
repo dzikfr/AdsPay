@@ -15,6 +15,7 @@ import com.example.adspay.screens.register.RegisterFormScreen
 import com.example.adspay.screens.register.RegisterOtpScreen
 import com.example.adspay.screens.register.RegisterPhoneScreen
 import com.example.adspay.screens.register.RegisterPinScreen
+import com.example.adspay.screens.register.KycFormScreen
 
 @Composable
 fun AppNavigation(
@@ -34,6 +35,7 @@ fun AppNavigation(
         composable("qris") { QrisScreen() }
         composable("profile") { ProfileScreen(isDarkMode, toggleTheme, navController) }
         composable("pulsa") { PulsaScreen(navController) }
+        composable("kyc") { KycFormScreen(navController) }
         composable("token") { TokenScreen(navController) }
         composable("promotion") { PromotionScreen(navController) }
         composable("history") { HistoryScreen(navController) }

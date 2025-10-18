@@ -16,6 +16,12 @@ class SessionManager(context: Context) {
         }
     }
 
+    fun getExpiresInSeconds(): Long {
+        val expiresAt = prefs.getLong("expires_at", 0L)
+        val remainingMillis = expiresAt - System.currentTimeMillis()
+        return remainingMillis / 1000
+    }
+
     fun getAccessToken(): String? = prefs.getString("access_token", null)
 
     fun getRefreshToken(): String? = prefs.getString("refresh_token", null)
