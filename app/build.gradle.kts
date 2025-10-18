@@ -70,7 +70,6 @@ dependencies {
     implementation(libs.androidx.camera.camera2)
     implementation(libs.androidx.camera.lifecycle)
     implementation(libs.androidx.camera.view)
-    implementation(libs.mlkit.text)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -79,4 +78,9 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation(libs.androidx.biometric)
+    implementation(libs.mlkit.face.detection)
+    implementation(libs.mlkit.text.recognition)
+    implementation(libs.camera.core)
+    implementation(libs.camera.view)
+    implementation(files("libs/facetec-sdk-10.0.15.aar"))
 }
