@@ -1,5 +1,6 @@
 package com.example.adspay.screens.register
 
+import android.Manifest
 import android.content.Context
 import android.graphics.Bitmap
 import com.example.adspay.utils.KtpOcrUtils
@@ -12,6 +13,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -59,6 +61,8 @@ fun KycFormScreen(navController: NavController) {
     var job by remember { mutableStateOf("") }
 
     val religions = listOf("ISLAM", "KRISTEN", "KATOLIK", "HINDU", "BUDDHA", "KONGHUCU")
+
+    val maritalStatusList = listOf("BELUM KAWIN", "KAWIN", "CERAI", "CERAI MATI")
 
     var showDatePicker by remember { mutableStateOf(false) }
     val scrollState = rememberScrollState()
@@ -112,7 +116,7 @@ fun KycFormScreen(navController: NavController) {
                         if (fields.dateOfBirth.isNotEmpty()) dateOfBirth = fields.dateOfBirth
                         if (fields.address.isNotEmpty()) address = fields.address
                         if (fields.job.isNotEmpty()) job = fields.job
-                        if (fields.maritalStatus.isNotEmpty()) maritalStatus = fields.maritalStatus
+                        if (fields.maritalStatus.isNotEmpty()) maritalStatus = normalizeMaritalStatus(fields.maritalStatus)
                     }
                     .addOnFailureListener { e ->
                         Toast.makeText(context, "OCR gagal: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
@@ -129,24 +133,88 @@ fun KycFormScreen(navController: NavController) {
             .fillMaxSize()
             .verticalScroll(scrollState)
     ) {
-        OutlinedTextField(value = nik, onValueChange = { nik = it }, label = { Text("NIK") })
-        OutlinedTextField(value = fullName, onValueChange = { fullName = it }, label = { Text("Nama Lengkap") })
-        OutlinedTextField(value = placeOfBirth, onValueChange = { placeOfBirth = it }, label = { Text("Tempat Lahir") })
-
-        OutlinedTextField(
-            value = dateOfBirth,
-            onValueChange = {},
-            label = { Text("Tanggal Lahir") },
-            readOnly = true,
-            modifier = Modifier.fillMaxWidth()
-        )
-        Button(onClick = { showDatePicker = true }) {
-            Text("Pilih Tanggal")
+        // --- FOTO KTP DULU DI ATAS ---
+        Text("Foto KTP:")
+        CaptureImageButton(bitmap = ktpBitmap.value) {
+            showCamera = true
         }
 
-        OutlinedTextField(value = address, onValueChange = { address = it }, label = { Text("Alamat") })
+        Spacer(modifier = Modifier.height(12.dp))
 
-        Text("Jenis Kelamin")
+        Text("Foto Selfie:")
+        CaptureImageButton(bitmap = selfieBitmap.value) {
+            if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
+                == PackageManager.PERMISSION_GRANTED) {
+                selfieLauncher.launch(null)
+            } else {
+                permissionLauncher.launch(Manifest.permission.CAMERA)
+            }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // --- FORM INPUT ---
+        val commonModifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+
+        OutlinedTextField(
+            value = nik,
+            onValueChange = { nik = it },
+            label = { Text("NIK") },
+            shape = RoundedCornerShape(12.dp),
+            modifier = commonModifier
+        )
+
+        OutlinedTextField(
+            value = fullName,
+            onValueChange = { fullName = it },
+            label = { Text("Nama Lengkap") },
+            shape = RoundedCornerShape(12.dp),
+            modifier = commonModifier
+        )
+
+        OutlinedTextField(
+            value = placeOfBirth,
+            onValueChange = { placeOfBirth = it },
+            label = { Text("Tempat Lahir") },
+            shape = RoundedCornerShape(12.dp),
+            modifier = commonModifier
+        )
+
+        // --- TANGGAL LAHIR + TOMBOL PILIH TANGGAL SEJAJAR ---
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            OutlinedTextField(
+                value = dateOfBirth,
+                onValueChange = {},
+                label = { Text("Tanggal Lahir") },
+                readOnly = true,
+                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier.weight(1f)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Button(
+                onClick = { showDatePicker = true },
+                modifier = Modifier
+                    .height(56.dp)
+            ) {
+                Text("Pilih")
+            }
+        }
+
+        OutlinedTextField(
+            value = address,
+            onValueChange = { address = it },
+            label = { Text("Alamat") },
+            shape = RoundedCornerShape(12.dp),
+            modifier = commonModifier
+        )
+
+        // --- RADIO JENIS KELAMIN ---
+        Text("Jenis Kelamin", modifier = Modifier.padding(top = 8.dp, bottom = 4.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
             RadioButton(selected = gender == "LAKI-LAKI", onClick = { gender = "LAKI-LAKI" })
             Text("Laki-Laki", modifier = Modifier.padding(end = 16.dp))
@@ -154,50 +222,76 @@ fun KycFormScreen(navController: NavController) {
             Text("Perempuan")
         }
 
-        var expanded by remember { mutableStateOf(false) }
-        ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
+        // --- AGAMA DROPDOWN ---
+        var expandedAgama by remember { mutableStateOf(false) }
+        ExposedDropdownMenuBox(
+            expanded = expandedAgama,
+            onExpandedChange = { expandedAgama = !expandedAgama }
+        ) {
             OutlinedTextField(
                 value = religion,
                 onValueChange = {},
                 label = { Text("Agama") },
                 readOnly = true,
-                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
-                modifier = Modifier.menuAnchor().fillMaxWidth()
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expandedAgama) },
+                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier
+                    .menuAnchor()
+                    .fillMaxWidth()
             )
-            ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            ExposedDropdownMenu(expanded = expandedAgama, onDismissRequest = { expandedAgama = false }) {
                 religions.forEach { item ->
                     DropdownMenuItem(
                         text = { Text(item) },
                         onClick = {
                             religion = item
-                            expanded = false
+                            expandedAgama = false
                         }
                     )
                 }
             }
         }
 
-        OutlinedTextField(value = maritalStatus, onValueChange = { maritalStatus = it }, label = { Text("Status Perkawinan") })
-        OutlinedTextField(value = job, onValueChange = { job = it }, label = { Text("Pekerjaan") })
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Text("Foto KTP:")
-        CaptureImageButton(bitmap = ktpBitmap.value) {
-            showCamera = true
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Text("Foto Selfie:")
-        CaptureImageButton(bitmap = selfieBitmap.value) {
-            if (ContextCompat.checkSelfPermission(context, android.Manifest.permission.CAMERA)
-                == PackageManager.PERMISSION_GRANTED) {
-                selfieLauncher.launch(null)
-            } else {
-                permissionLauncher.launch(android.Manifest.permission.CAMERA)
+        // --- STATUS PERKAWINAN DROPDOWN ---
+        var expandedMartialList by remember { mutableStateOf(false) }
+        ExposedDropdownMenuBox(
+            expanded = expandedMartialList,
+            onExpandedChange = { expandedMartialList = !expandedMartialList }
+        ) {
+            OutlinedTextField(
+                value = maritalStatus,
+                onValueChange = {},
+                label = { Text("Status Perkawinan") },
+                readOnly = true,
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expandedMartialList) },
+                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier
+                    .menuAnchor()
+                    .fillMaxWidth()
+            )
+            ExposedDropdownMenu(
+                expanded = expandedMartialList,
+                onDismissRequest = { expandedMartialList = false }
+            ) {
+                maritalStatusList.forEach { item ->
+                    DropdownMenuItem(
+                        text = { Text(item) },
+                        onClick = {
+                            maritalStatus = item
+                            expandedMartialList = false
+                        }
+                    )
+                }
             }
         }
+
+        OutlinedTextField(
+            value = job,
+            onValueChange = { job = it },
+            label = { Text("Pekerjaan") },
+            shape = RoundedCornerShape(12.dp),
+            modifier = commonModifier
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -294,4 +388,16 @@ fun bitmapToTempFile(context: Context, bitmap: Bitmap?, fileName: String): File 
         bitmap?.compress(Bitmap.CompressFormat.JPEG, 90, out)
     }
     return file
+}
+
+fun normalizeMaritalStatus(input: String): String {
+    val cleaned = input.uppercase().replace(Regex("[^A-Z ]"), "").trim()
+
+    return when {
+        "BELUM" in cleaned -> "BELUM KAWIN"
+        "KAWIN" in cleaned -> "KAWIN"
+        "MATI" in cleaned -> "CERAI MATI"
+        "CERAI" in cleaned -> "CERAI"
+        else -> ""
+    }
 }
