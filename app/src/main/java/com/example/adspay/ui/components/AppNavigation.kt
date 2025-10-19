@@ -17,6 +17,7 @@ import com.example.adspay.screens.register.RegisterOtpScreen
 import com.example.adspay.screens.register.RegisterPhoneScreen
 import com.example.adspay.screens.register.RegisterPinScreen
 import com.example.adspay.screens.register.KycFormScreen
+import com.example.adspay.screens.topup.*
 
 @Composable
 fun AppNavigation(
@@ -39,6 +40,7 @@ fun AppNavigation(
         composable("kycStart") { KycInitScreen(navController) }
         composable("kyc") { KycFormScreen(navController) }
         composable("token") { TokenScreen(navController) }
+        composable("topup_guide") { TopupGuide(navController) }
         composable("internal_transfer") { InternalTransferScreen(navController) }
         composable("transferSummary/{receiverName}/{amount}/{note}") { backStackEntry ->
             val receiverName = backStackEntry.arguments?.getString("receiverName") ?: ""

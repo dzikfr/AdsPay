@@ -60,7 +60,8 @@ fun HomeScreen(navController: NavController) {
     }
 
     val menuItemsPembayaran = listOf(
-        MenuItem("Pulsa", Icons.Default.Phone) { navController.navigate("pulsa") },
+        MenuItem("Top Up", Icons.Default.Add) { navController.navigate("topup_guide") },
+//        MenuItem("Pulsa", Icons.Default.Phone) { navController.navigate("pulsa") },
         MenuItem("Transfer Sesama", Icons.Default.AccountBalanceWallet) { navController.navigate("internal_transfer") },
         MenuItem("Transfer Bank", Icons.Default.AssuredWorkload) { navController.navigate("pulsa") }
     )
