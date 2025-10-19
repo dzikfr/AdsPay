@@ -61,7 +61,7 @@ fun HomeScreen(navController: NavController) {
 
     val menuItemsPembayaran = listOf(
         MenuItem("Pulsa", Icons.Default.Phone) { navController.navigate("pulsa") },
-        MenuItem("Token", Icons.Default.Face) { navController.navigate("token") },
+        MenuItem("Transfer Sesama", Icons.Default.AccountBalanceWallet) { navController.navigate("internal_transfer") },
         MenuItem("Transfer Bank", Icons.Default.AssuredWorkload) { navController.navigate("pulsa") }
     )
 
@@ -73,8 +73,7 @@ fun HomeScreen(navController: NavController) {
 
     val menuItemsPembayaran3 = listOf(
         MenuItem("Pendidikan", Icons.Default.School) {},
-        MenuItem("Shopping", Icons.Default.LocalGroceryStore) {},
-        MenuItem("Bagikan", Icons.Default.Share) {}
+        MenuItem("Shopping", Icons.Default.LocalGroceryStore) {}
     )
 
     Column(

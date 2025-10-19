@@ -9,6 +9,7 @@ import com.example.adspay.screens.*
 import com.example.adspay.screens.home.*
 import com.example.adspay.screens.history.*
 import com.example.adspay.screens.promotion.*
+import com.example.adspay.screens.transfer.*
 import com.example.adspay.services.RegisterService
 import androidx.compose.ui.platform.LocalContext
 import com.example.adspay.screens.register.RegisterFormScreen
@@ -38,6 +39,13 @@ fun AppNavigation(
         composable("kycStart") { KycInitScreen(navController) }
         composable("kyc") { KycFormScreen(navController) }
         composable("token") { TokenScreen(navController) }
+        composable("internal_transfer") { InternalTransferScreen(navController) }
+        composable("transferSummary/{receiverName}/{amount}/{note}") { backStackEntry ->
+            val receiverName = backStackEntry.arguments?.getString("receiverName") ?: ""
+            val amount = backStackEntry.arguments?.getString("amount") ?: ""
+            val note = backStackEntry.arguments?.getString("note") ?: ""
+            TransferSummaryScreen(navController, receiverName, amount, note)
+        }
         composable("promotion") { PromotionScreen(navController) }
         composable("history") { HistoryScreen(navController) }
         composable("historyDetail/{historyId}") { backStackEntry ->

@@ -10,9 +10,14 @@ data class InquiryResponse(
     val data: DataInquiry
 )
 
+//Example request
+//{
+//    "receiverPhone" : "082111867727"
+//}
+
 data class DataInquiry(
-    val exist: Boolean,
-    val fullName: String,
+    val exists: Boolean,
+    val fullName: String?,
     val phoneNumber: String
 )
 
@@ -33,7 +38,14 @@ data class TransferPayload(
     val note: String
 )
 
-data class TransferResponse(
+// Example request
+//{
+//    "receiverPhone": "081398964060",
+//    "amount": 50000,
+//    "note": "Bayar makan siang"
+//}
+
+data class InternalTransferResponse(
     val resp_code: String,
     val resp_message: String,
     val data: DataTrasnfer
