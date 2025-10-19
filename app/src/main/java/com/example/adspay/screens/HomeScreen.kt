@@ -94,6 +94,10 @@ fun HomeScreen(navController: NavController) {
                 Column(
                     modifier = Modifier.padding(16.dp)
                 ) {
+                    Text(
+                        text = "Hi, ${user.fullName}",
+                        style = MaterialTheme.typography.titleMedium
+                    )
                     // Row: Nomor HP + Copy
                     Row(
                         modifier = Modifier.fillMaxWidth(),

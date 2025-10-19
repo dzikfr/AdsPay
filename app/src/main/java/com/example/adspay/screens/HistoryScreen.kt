@@ -10,171 +10,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.adspay.models.history.History
-//import com.example.adspay.services.HistoryService
+import com.example.adspay.models.history.HistoryItem
+import com.example.adspay.services.ApiClient
+import com.example.adspay.services.HistoryService
 import com.example.adspay.ui.components.HistoryCard
 import kotlinx.coroutines.launch
+import com.example.adspay.utils.SessionManager
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HistoryScreen(navController: NavController) {
-    val dummyHistories = listOf(
-        History(
-            id = "1",
-            type = "payment",
-            iconUrl = "https://img.icons8.com/color/48/money.png",
-            actionName = "Pembayaran Pulsa",
-            dateTime = "2025-08-25 14:30",
-            amount = 50000.0,
-            isIncome = false,
-            isSuccess = true
-        ),
-        History(
-            id = "2",
-            type = "topup",
-            iconUrl = "https://img.icons8.com/color/48/money-bag.png",
-            actionName = "Top Up Saldo",
-            dateTime = "2025-08-25 10:15",
-            amount = 100000.0,
-            isIncome = true,
-            isSuccess = true
-        ),
-        History(
-            id = "3",
-            type = "transfer",
-            iconUrl = "https://img.icons8.com/color/48/bank-transfer.png",
-            actionName = "Transfer ke Budi",
-            dateTime = "2025-08-24 19:00",
-            amount = 75000.0,
-            isIncome = false,
-            isSuccess = false
-        ),
-        History(
-            id = "4",
-            type = "transfer",
-            iconUrl = "https://img.icons8.com/color/48/bank-transfer.png",
-            actionName = "Transfer ke Budi",
-            dateTime = "2025-08-24 19:00",
-            amount = 75000.0,
-            isIncome = false,
-            isSuccess = false
-        ),
-        History(
-            id = "5",
-            type = "transfer",
-            iconUrl = "https://img.icons8.com/color/48/bank-transfer.png",
-            actionName = "Transfer ke Budi",
-            dateTime = "2025-08-24 19:00",
-            amount = 75000.0,
-            isIncome = false,
-            isSuccess = false
-        ),
-        History(
-            id = "6",
-            type = "transfer",
-            iconUrl = "https://img.icons8.com/color/48/bank-transfer.png",
-            actionName = "Transfer ke Budi",
-            dateTime = "2025-08-24 19:00",
-            amount = 75000.0,
-            isIncome = false,
-            isSuccess = false
-        ),
-        History(
-            id = "7",
-            type = "transfer",
-            iconUrl = "https://img.icons8.com/color/48/bank-transfer.png",
-            actionName = "Transfer ke Budi",
-            dateTime = "2025-08-24 19:00",
-            amount = 75000.0,
-            isIncome = false,
-            isSuccess = false
-        ),
-        History(
-            id = "8",
-            type = "transfer",
-            iconUrl = "https://img.icons8.com/color/48/bank-transfer.png",
-            actionName = "Transfer ke Budi",
-            dateTime = "2025-08-24 19:00",
-            amount = 75000.0,
-            isIncome = false,
-            isSuccess = false
-        ),
-        History(
-            id = "9",
-            type = "transfer",
-            iconUrl = "https://img.icons8.com/color/48/bank-transfer.png",
-            actionName = "Transfer ke Budi",
-            dateTime = "2025-08-24 19:00",
-            amount = 75000.0,
-            isIncome = false,
-            isSuccess = false
-        ),
-        History(
-            id = "10",
-            type = "transfer",
-            iconUrl = "https://img.icons8.com/color/48/bank-transfer.png",
-            actionName = "Transfer ke Budi",
-            dateTime = "2025-08-24 19:00",
-            amount = 75000.0,
-            isIncome = false,
-            isSuccess = false
-        ),
-        History(
-            id = "11",
-            type = "transfer",
-            iconUrl = "https://img.icons8.com/color/48/bank-transfer.png",
-            actionName = "Transfer ke Budi",
-            dateTime = "2025-08-24 19:00",
-            amount = 75000.0,
-            isIncome = false,
-            isSuccess = false
-        ),
-        History(
-            id = "12",
-            type = "transfer",
-            iconUrl = "https://img.icons8.com/color/48/bank-transfer.png",
-            actionName = "Transfer ke Budi",
-            dateTime = "2025-08-24 19:00",
-            amount = 75000.0,
-            isIncome = false,
-            isSuccess = false
-        ),
-        History(
-            id = "13",
-            type = "transfer",
-            iconUrl = "https://img.icons8.com/color/48/bank-transfer.png",
-            actionName = "Transfer ke Budi",
-            dateTime = "2025-08-24 19:00",
-            amount = 75000.0,
-            isIncome = false,
-            isSuccess = false
-        ),
-        History(
-            id = "14",
-            type = "transfer",
-            iconUrl = "https://img.icons8.com/color/48/bank-transfer.png",
-            actionName = "Transfer ke Budi",
-            dateTime = "2025-08-24 19:00",
-            amount = 75000.0,
-            isIncome = false,
-            isSuccess = false
-        ),
-        History(
-            id = "15",
-            type = "transfer",
-            iconUrl = "https://img.icons8.com/color/48/bank-transfer.png",
-            actionName = "Transfer ke Budi",
-            dateTime = "2025-08-24 19:00",
-            amount = 75000.0,
-            isIncome = false,
-            isSuccess = false
-        )
-    )
-    val context = LocalContext.current
-//    val historyService = remember { HistoryService(context) }
 
-//    var histories by remember { mutableStateOf<List<History>>(emptyList()) }
-    var histories by remember { mutableStateOf(dummyHistories) }
+    val context = LocalContext.current
+
+    val retrofit = remember { ApiClient.create(context, "http://38.47.94.165:3123/") }
+    val historyService = remember { retrofit.create(HistoryService::class.java) }
+
+    var histories by remember { mutableStateOf<List<HistoryItem>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
@@ -183,9 +35,9 @@ fun HistoryScreen(navController: NavController) {
     LaunchedEffect(Unit) {
         coroutineScope.launch {
             try {
-//                val result = historyService.getHistories()
-                val result = dummyHistories
-                histories = result
+                val token = "Bearer ${SessionManager(context).getAccessToken()}"
+                val result = historyService.getUserHistory(token)
+                histories = result.data.content
                 errorMessage = null
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -198,9 +50,7 @@ fun HistoryScreen(navController: NavController) {
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Riwayat Transaksi") }
-            )
+            TopAppBar(title = { Text("Riwayat Transaksi") })
         }
     ) { padding ->
         Box(
@@ -209,38 +59,25 @@ fun HistoryScreen(navController: NavController) {
                 .fillMaxSize()
         ) {
             when {
-                isLoading -> {
-                    CircularProgressIndicator(
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-                }
-
-                errorMessage != null -> {
-                    Text(
-                        text = errorMessage ?: "Terjadi kesalahan",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-                }
-
-                histories.isEmpty() -> {
-                    Text(
-                        text = "Belum ada riwayat",
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-                }
-
-                else -> {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(16.dp)
-                    ) {
-                        items(histories) { history ->
-                            HistoryCard(history = history) {
-                                navController.navigate("historyDetail/${history.id}")
-                            }
+                isLoading -> CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                errorMessage != null -> Text(
+                    text = errorMessage ?: "Terjadi kesalahan",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.align(Alignment.Center)
+                )
+                histories.isEmpty() -> Text(
+                    text = "Belum ada riwayat",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.align(Alignment.Center)
+                )
+                else -> LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(16.dp)
+                ) {
+                    items(histories) { history ->
+                        HistoryCard(history = history) {
+                            navController.navigate("historyDetail/${history.transactionCode}")
                         }
                     }
                 }

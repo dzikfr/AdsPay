@@ -9,9 +9,22 @@ data class UserProfileResponse(
 data class UserData(
     val userId: String,
     val phoneNumber: String,
+    val fullName: String,
     val saldo: Int,
     val status: String,
-    val registrationStatus: String
+    val registrationStatus: String,
+    val vaList: List<VaList>
+)
+
+data class VaList(
+    val id: Int,
+    val vaNumber: String,
+    val vaName: String,
+    val vaType: String,
+    val vaStatus: String,
+    val vaBalance: Double,
+    val vaCreatedAt: String,
+    val vaUpdatedAt: String
 )
 
 data class UserDetailResponse(

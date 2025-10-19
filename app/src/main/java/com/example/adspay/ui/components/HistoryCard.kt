@@ -5,16 +5,16 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.example.adspay.models.history.History
+import com.example.adspay.models.history.HistoryItem
 import java.text.NumberFormat
+import java.text.SimpleDateFormat
 import java.util.*
 
 @Composable
 fun HistoryCard(
-    history: History,
+    history: HistoryItem,
     onClick: () -> Unit
 ) {
     Card(
@@ -30,29 +30,38 @@ fun HistoryCard(
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Row {
-                // 🔹 Ganti Coil dengan NetworkImage bawaan
-                NetworkImage(
-                    url = history.iconUrl,
-                    contentDescription = history.actionName,
-                    modifier = Modifier.size(40.dp),
-                    contentScale = ContentScale.Fit
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = when (history.type) {
+                        "TOPUP" -> "Top-up Saldo"
+                        "TRANSFER_OUT" -> "Transfer Keluar"
+                        "TRANSFER_IN" -> "Transfer Masuk"
+                        else -> history.type
+                    },
+                    style = MaterialTheme.typography.titleMedium
                 )
 
-                Spacer(modifier = Modifier.width(12.dp))
-                Column {
-                    Text(
-                        text = history.actionName,
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                    Text(
-                        text = history.dateTime,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
+                Text(
+                    text = history.description,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+                val formattedDate = try {
+                    val parser = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
+                    val date = parser.parse(history.createdAt)
+                    SimpleDateFormat("dd MMM yyyy, HH:mm", Locale("id", "ID")).format(date!!)
+                } catch (e: Exception) {
+                    history.createdAt
                 }
+
+                Text(
+                    text = formattedDate,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
 
             val formattedAmount = NumberFormat
@@ -60,8 +69,8 @@ fun HistoryCard(
                 .format(history.amount)
 
             Text(
-                text = if (history.isIncome) "+$formattedAmount" else "-$formattedAmount",
-                color = if (history.isIncome)
+                text = if (history.direction == "IN") "+$formattedAmount" else "-$formattedAmount",
+                color = if (history.direction == "IN")
                     MaterialTheme.colorScheme.primary
                 else
                     MaterialTheme.colorScheme.error,

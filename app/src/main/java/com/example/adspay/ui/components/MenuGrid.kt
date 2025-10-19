@@ -11,6 +11,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 
 data class MenuItem(
     val label: String,
@@ -60,7 +62,7 @@ fun IconMenuGrid(
                     ) {
                         Surface(
                             modifier = Modifier
-                                .size(48.dp) // ukuran lingkaran
+                                .size(48.dp)
                                 .clip(CircleShape),
                             color = MaterialTheme.colorScheme.surfaceVariant,
                             shape = CircleShape,
@@ -84,7 +86,12 @@ fun IconMenuGrid(
                             text = item.label,
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurface,
-                            maxLines = 1
+                            maxLines = 2,
+                            overflow = TextOverflow.Clip,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 2.dp),
+                            textAlign = TextAlign.Center
                         )
                     }
                 }
