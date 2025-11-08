@@ -1,11 +1,5 @@
 package com.example.adspay.models.user
 
-data class UserProfileResponse(
-    val resp_code: String,
-    val resp_message: String,
-    val data: UserData
-)
-
 data class UserData(
     val userId: String,
     val phoneNumber: String,
@@ -25,12 +19,6 @@ data class VaList(
     val vaBalance: Double,
     val vaCreatedAt: String,
     val vaUpdatedAt: String
-)
-
-data class UserDetailResponse(
-    val resp_code: String,
-    val resp_message: String,
-    val data: UserDetailData
 )
 
 data class UserDetailData(

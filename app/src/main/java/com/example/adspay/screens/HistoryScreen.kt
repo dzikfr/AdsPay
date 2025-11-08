@@ -16,6 +16,7 @@ import com.example.adspay.services.HistoryService
 import com.example.adspay.ui.components.HistoryCard
 import kotlinx.coroutines.launch
 import com.example.adspay.utils.SessionManager
+import com.example.adspay.constant.ApiConfig
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -23,7 +24,7 @@ fun HistoryScreen(navController: NavController) {
 
     val context = LocalContext.current
 
-    val retrofit = remember { ApiClient.create(context, "http://38.47.94.165:3123/") }
+    val retrofit = remember { ApiClient.create(context, ApiConfig.BASE_URL) }
     val historyService = remember { retrofit.create(HistoryService::class.java) }
 
     var histories by remember { mutableStateOf<List<HistoryItem>>(emptyList()) }
@@ -37,7 +38,7 @@ fun HistoryScreen(navController: NavController) {
             try {
                 val token = "Bearer ${SessionManager(context).getAccessToken()}"
                 val result = historyService.getUserHistory(token)
-                histories = result.data.content
+                histories = result.data?.content ?: emptyList()
                 errorMessage = null
             } catch (e: Exception) {
                 e.printStackTrace()

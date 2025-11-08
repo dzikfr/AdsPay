@@ -1,10 +1,5 @@
 package com.example.adspay.models.history
 
-data class HistoryResponse(
-    val resp_code: String,
-    val resp_message: String,
-    val data: HistoryData
-)
 
 data class HistoryData(
     val content: List<HistoryItem>,
@@ -24,12 +19,6 @@ data class HistoryItem(
     val status: String,
     val description: String,
     val createdAt: String
-)
-
-data class HistoryDetailResponse(
-    val resp_code: String,
-    val resp_message: String,
-    val data: HistoryDetail
 )
 
 data class HistoryDetail(

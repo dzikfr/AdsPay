@@ -20,13 +20,14 @@ import com.example.adspay.services.TransferInterface
 import com.example.adspay.utils.SessionManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import com.example.adspay.constant.ApiConfig
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InternalTransferScreen(navController: NavController) {
     val context = LocalContext.current
     val sessionManager = remember { SessionManager(context) }
-    val retrofit = remember { ApiClient.create(context, "http://38.47.94.165:3123/") }
+    val retrofit = remember { ApiClient.create(context, ApiConfig.BASE_URL) }
     val transferService = remember { retrofit.create(TransferInterface::class.java) }
 
     var phoneNumber by remember { mutableStateOf("") }

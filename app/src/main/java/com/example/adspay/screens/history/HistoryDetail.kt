@@ -15,12 +15,13 @@ import com.example.adspay.services.ApiClient
 import com.example.adspay.services.HistoryService
 import com.example.adspay.utils.SessionManager
 import kotlinx.coroutines.launch
+import com.example.adspay.constant.ApiConfig
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HistoryDetailScreen(navController: NavController, historyId: String) {
     val context = LocalContext.current
-    val retrofit = remember { ApiClient.create(context, "http://38.47.94.165:3123/") }
+    val retrofit = remember { ApiClient.create(context, ApiConfig.BASE_URL) }
     val service = remember { retrofit.create(HistoryService::class.java) }
     val sessionManager = remember { SessionManager(context) }
 

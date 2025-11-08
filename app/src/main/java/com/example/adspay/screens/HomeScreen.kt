@@ -34,6 +34,8 @@ import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.material.icons.filled.ContentCopy
+import androidx. compose. foundation. background
+import com.example.adspay.constant.*
 
 @Composable
 fun HomeScreen(navController: NavController) {
@@ -41,12 +43,13 @@ fun HomeScreen(navController: NavController) {
     val context = LocalContext.current
     val clipboardManager: ClipboardManager = LocalClipboardManager.current
 
-    val retrofit = remember { ApiClient.create(context, "http://38.47.94.165:3123/") }
+    val retrofit = remember { ApiClient.create(context, ApiConfig.BASE_URL) }
     val apiService = remember { retrofit.create(UserService::class.java) }
 
     val coroutineScope = rememberCoroutineScope()
     var userData by remember { mutableStateOf<UserData?>(null) }
     var isSaldoVisible by remember { mutableStateOf(false) }
+    var isLoading by remember { mutableStateOf(true) }
 
     LaunchedEffect(Unit) {
         coroutineScope.launch {
@@ -55,15 +58,16 @@ fun HomeScreen(navController: NavController) {
                 userData = profile.data
             } catch (e: Exception) {
                 e.printStackTrace()
+            } finally {
+                isLoading = false
             }
         }
     }
 
     val menuItemsPembayaran = listOf(
         MenuItem("Top Up", Icons.Default.Add) { navController.navigate("topup_guide") },
-//        MenuItem("Pulsa", Icons.Default.Phone) { navController.navigate("pulsa") },
         MenuItem("Transfer Sesama", Icons.Default.AccountBalanceWallet) { navController.navigate("internal_transfer") },
-        MenuItem("Transfer Bank", Icons.Default.AssuredWorkload) { navController.navigate("pulsa") }
+        MenuItem("Transfer Bank", Icons.Default.AssuredWorkload) { navController.navigate("bank_transfer") }
     )
 
     val menuItemsPembayaran2 = listOf(
@@ -80,86 +84,115 @@ fun HomeScreen(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .verticalScroll(scrollState)
             .padding(horizontal = 24.dp),
         verticalArrangement = Arrangement.Top
     ) {
-        userData?.let { user ->
+        Spacer(modifier = Modifier.height(16.dp))
+
+        if (isLoading) {
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 16.dp),
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary)
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
             ) {
-                Column(
-                    modifier = Modifier.padding(16.dp)
-                ) {
-                    Text(
-                        text = "Hi, ${user.fullName}",
-                        style = MaterialTheme.typography.titleMedium
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth(0.5f)
+                            .height(20.dp)
+                            .background(MaterialTheme.colorScheme.surfaceTint, RoundedCornerShape(4.dp))
                     )
-                    // Row: Nomor HP + Copy
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(20.dp)
+                            .background(MaterialTheme.colorScheme.surfaceTint, RoundedCornerShape(4.dp))
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(28.dp)
+                            .background(MaterialTheme.colorScheme.surfaceTint, RoundedCornerShape(4.dp))
+                    )
+                }
+            }
+        } else {
+            userData?.let { user ->
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 16.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp)
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                text = user.phoneNumber,
-                                style = MaterialTheme.typography.titleMedium,
-                                modifier = Modifier.padding(end = 8.dp)
-                            )
-                            IconButton(
-                                onClick = {
-                                    clipboardManager.setText(AnnotatedString(user.phoneNumber))
-                                }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.ContentCopy,
-                                    contentDescription = "Copy",
-                                    tint = MaterialTheme.colorScheme.surface,
-                                    modifier = Modifier.size(16.dp)
+                        Text(
+                            text = "Hi, ${user.fullName}",
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    text = user.phoneNumber,
+                                    style = MaterialTheme.typography.titleMedium,
+                                    modifier = Modifier.padding(end = 8.dp)
                                 )
+                                IconButton(onClick = {
+                                    clipboardManager.setText(AnnotatedString(user.phoneNumber))
+                                }) {
+                                    Icon(
+                                        imageVector = Icons.Default.ContentCopy,
+                                        contentDescription = "Copy",
+                                        tint = MaterialTheme.colorScheme.surface,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                }
                             }
+
+                            Text(
+                                text = if (user.registrationStatus == "UNREGISTERED") "❌ Unregistered" else "✅ Registered",
+                                style = MaterialTheme.typography.bodySmall.copy(
+                                    color = MaterialTheme.colorScheme.surface
+                                )
+                            )
                         }
 
+                        Divider(modifier = Modifier.padding(vertical = 12.dp))
+
                         Text(
-                            text = if (user.registrationStatus == "UNREGISTERED") "❌ Unregistered" else "✅ Registered",
-                            style = MaterialTheme.typography.bodySmall.copy(
-                                color = if (user.registrationStatus == "UNREGISTERED")
-                                    MaterialTheme.colorScheme.surface
-                                else MaterialTheme.colorScheme.surface
-                            )
+                            text = "Saldo Kamu",
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(bottom = 4.dp)
                         )
-                    }
 
-                    Divider(modifier = Modifier.padding(vertical = 12.dp))
-
-                    // Row: Label "Your Balance"
-                    Text(
-                        text = "Saldo Kamu",
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(bottom = 4.dp)
-                    )
-
-                    // Row: Saldo + toggle
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(
-                            text = if (isSaldoVisible) "Rp ${"%,d".format(user.saldo)}" else "Rp ******",
-                            style = MaterialTheme.typography.headlineSmall.copy(
-                                fontWeight = FontWeight.Bold
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = if (isSaldoVisible) "Rp ${"%,d".format(user.saldo)}" else "Rp ******",
+                                style = MaterialTheme.typography.headlineSmall.copy(
+                                    fontWeight = FontWeight.Bold
+                                )
                             )
-                        )
-                        IconButton(onClick = { isSaldoVisible = !isSaldoVisible }) {
-                            Icon(
-                                imageVector = if (isSaldoVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                                contentDescription = "Toggle Saldo"
-                            )
+                            IconButton(onClick = { isSaldoVisible = !isSaldoVisible }) {
+                                Icon(
+                                    imageVector = if (isSaldoVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                                    contentDescription = "Toggle Saldo"
+                                )
+                            }
                         }
                     }
                 }
@@ -168,16 +201,11 @@ fun HomeScreen(navController: NavController) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(scrollState)
-        ) {
-            IconMenuGrid(title = "Pembayaran", items = menuItemsPembayaran)
-            IconMenuGrid(title = "Tagihan", items = menuItemsPembayaran2)
-            IconMenuGrid(title = "Tagihan lainnya", items = menuItemsPembayaran3)
-            IconMenuGrid(title = "Tagihan", items = menuItemsPembayaran2)
-            IconMenuGrid(title = "Tagihan lainnya", items = menuItemsPembayaran3)
-        }
+        // Semua grid menu ikut scroll juga
+        IconMenuGrid(title = "Pembayaran", items = menuItemsPembayaran)
+        IconMenuGrid(title = "Tagihan", items = menuItemsPembayaran2)
+//        IconMenuGrid(title = "Tagihan lainnya", items = menuItemsPembayaran3)
+//        IconMenuGrid(title = "Tagihan", items = menuItemsPembayaran2)
+//        IconMenuGrid(title = "Tagihan lainnya", items = menuItemsPembayaran3)
     }
 }

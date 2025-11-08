@@ -2,17 +2,6 @@ package com.example.adspay.models.auth
 
 import com.google.gson.annotations.SerializedName
 
-data class AuthResponse(
-    @SerializedName("resp_code")
-    val respCode: String,
-
-    @SerializedName("resp_message")
-    val respMessage: String,
-
-    @SerializedName("data")
-    val data: AuthData
-)
-
 data class AuthData(
     @SerializedName("access_token")
     val accessToken: String,

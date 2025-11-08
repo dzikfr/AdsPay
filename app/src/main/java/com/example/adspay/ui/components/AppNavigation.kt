@@ -42,6 +42,31 @@ fun AppNavigation(
         composable("token") { TokenScreen(navController) }
         composable("topup_guide") { TopupGuide(navController) }
         composable("internal_transfer") { InternalTransferScreen(navController) }
+        composable("bank_transfer") { BankListScreen(navController) }
+        composable("bankInquiry/{bankCode}/{bankName}") {
+            val args = it.arguments!!
+            BankInquiryScreen(navController, args.getString("bankCode")!!, args.getString("bankName")!!)
+        }
+        composable("bankAmount/{bankCode}/{bankName}/{accountNumber}/{accountName}") {
+            val args = it.arguments!!
+            BankAmountScreen(
+                navController,
+                args.getString("bankCode")!!,
+                args.getString("bankName")!!,
+                args.getString("accountNumber")!!,
+                args.getString("accountName")!!
+            )
+        }
+        composable("bankConfirm/{bankCode}/{accountNumber}/{amount}/{remark}") {
+            val args = it.arguments!!
+            BankConfirmScreen(
+                navController,
+                args.getString("bankCode")!!,
+                args.getString("accountNumber")!!,
+                args.getString("amount")!!,
+                args.getString("remark")!!
+            )
+        }
         composable("transferSummary/{receiverName}/{amount}/{note}") { backStackEntry ->
             val receiverName = backStackEntry.arguments?.getString("receiverName") ?: ""
             val amount = backStackEntry.arguments?.getString("amount") ?: ""

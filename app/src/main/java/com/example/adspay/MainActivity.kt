@@ -23,6 +23,7 @@ import android.widget.Toast
 import com.example.adspay.ui.components.BiometricPromptActivity
 import android.content.Intent
 import androidx.activity.result.contract.ActivityResultContracts
+import com.example.adspay.constant.ApiConfig
 
 class MainActivity : ComponentActivity() {
 
@@ -97,7 +98,7 @@ fun MainScreen(
 
     // ✅ Auto-refresh token setiap 30 detik kalau hampir kadaluarsa
     LaunchedEffect(Unit) {
-        val authService = AuthService(context, "http://38.47.94.165:3123/")
+        val authService = AuthService(context, ApiConfig.BASE_URL)
         while (true) {
             val remaining = sessionManager.getExpiresInSeconds()
             if (remaining in 1..60) {
@@ -105,11 +106,13 @@ fun MainScreen(
                 if (!refreshToken.isNullOrEmpty()) {
                     try {
                         val response = authService.refreshToken(refreshToken)
-                        sessionManager.saveAuthSession(
-                            accessToken = response.data.accessToken,
-                            refreshToken = response.data.refreshToken,
-                            expiresIn = response.data.expiresIn
-                        )
+                        response.data?.let { data ->
+                            sessionManager.saveAuthSession(
+                                accessToken = data.accessToken,
+                                refreshToken = data.refreshToken,
+                                expiresIn = data.expiresIn
+                            )
+                        }
                     } catch (e: Exception) {
                         e.printStackTrace()
                         sessionManager.clearSession()

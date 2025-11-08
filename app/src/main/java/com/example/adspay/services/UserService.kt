@@ -1,28 +1,25 @@
 package com.example.adspay.services
 
-import retrofit2.http.GET
-import retrofit2.http.Header
+import retrofit2.http.*
 import com.example.adspay.models.user.*
-import retrofit2.http.Multipart
-import retrofit2.http.POST
-import retrofit2.http.Part
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
-
+import com.example.adspay.models.common.BaseResponse
+import com.example.adspay.constant.ApiPath
 
 interface UserService {
-    @GET("api/mobile/users/profile")
+    @GET(ApiPath.Account.GET_PROFILE)
     suspend fun getUserProfile(
         @Header("Authorization") bearer: String
-    ): UserProfileResponse
+    ): BaseResponse<UserData>
 
-    @GET("api/mobile/users/detail")
+    @GET(ApiPath.Account.GET_DETAIL_USER)
     suspend fun getUserDetail(
         @Header("Authorization") bearer: String
-    ): UserDetailResponse
+    ): BaseResponse<UserDetailData>
 
     @Multipart
-    @POST("api/mobile/kyc/submit")
+    @POST(ApiPath.Kyc.SUBMIT_KYC)
     suspend fun submitKyc(
         @Header("Authorization") token: String,
         @Part photo_selfie: MultipartBody.Part,

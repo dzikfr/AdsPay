@@ -37,6 +37,7 @@ import com.example.adspay.ui.components.HeaderBlob
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
+import com.example.adspay.constant.ApiConfig
 
 @Composable
 fun ProfileScreen(
@@ -47,8 +48,7 @@ fun ProfileScreen(
     val context = LocalContext.current
     val sessionManager = remember { SessionManager(context) }
 
-    val baseUrl = "http://38.47.94.165:3123"
-    val retrofit = remember { ApiClient.create(context, baseUrl) }
+    val retrofit = remember { ApiClient.create(context, ApiConfig.BASE_URL) }
     val apiService = remember { retrofit.create(UserService::class.java) }
 
     val coroutineScope = rememberCoroutineScope()
@@ -120,7 +120,7 @@ fun ProfileScreen(
                                 contentAlignment = Alignment.Center
                             ) {
                                 SecureFile(
-                                    url = baseUrl + user.selfieUrl,
+                                    url = ApiConfig.BASE_URL + user.selfieUrl,
                                     contentDescription = "Foto Profil",
                                     modifier = Modifier
                                         .size(100.dp)

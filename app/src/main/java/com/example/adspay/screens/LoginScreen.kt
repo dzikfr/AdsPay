@@ -27,12 +27,13 @@ import android.content.ContextWrapper
 import androidx.compose.foundation.text.ClickableText
 import retrofit2.HttpException
 import java.io.IOException
+import com.example.adspay.constant.ApiConfig
 
 @Composable
 fun LoginScreen(navController: NavController) {
     val context = LocalContext.current
     val sessionManager = remember { SessionManager(context) }
-    val authService = remember { AuthService(context, "http://38.47.94.165:3123/") }
+    val authService = remember { AuthService(context, ApiConfig.BASE_URL) }
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
@@ -91,11 +92,13 @@ fun LoginScreen(navController: NavController) {
                     coroutineScope.launch {
                         try {
                             val response = authService.login(username, password)
-                            sessionManager.saveAuthSession(
-                                accessToken = response.data.accessToken,
-                                refreshToken = response.data.refreshToken,
-                                expiresIn = response.data.expiresIn
-                            )
+                            response.data?.let { data ->
+                                sessionManager.saveAuthSession(
+                                    accessToken = data.accessToken,
+                                    refreshToken = data.refreshToken,
+                                    expiresIn = data.expiresIn
+                                )
+                            }
                             navController.navigate("home") {
                                 popUpTo("login") { inclusive = true }
                             }

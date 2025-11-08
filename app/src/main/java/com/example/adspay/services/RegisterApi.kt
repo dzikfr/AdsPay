@@ -1,26 +1,25 @@
 package com.example.adspay.services
 
-import com.example.adspay.models.auth.OtpResponse
-import com.example.adspay.models.auth.OtpValidateResponse
-import com.example.adspay.models.auth.RegisterRequest
-import com.example.adspay.models.auth.RegisterResponse
+import com.example.adspay.models.auth.*
 import retrofit2.http.*
+import com.example.adspay.models.common.BaseResponse
+import com.example.adspay.constant.ApiPath
 
 interface RegisterApi {
-    @POST("api/mobile/otp/send")
+    @POST(ApiPath.Auth.REQUEST_OTP)
     suspend fun sendOtp(
         @Query("phoneNumber") phoneNumber: String
-    ): OtpResponse
+    ): BaseResponse<OtpData>
 
-    @POST("api/mobile/otp/validate")
+    @POST(ApiPath.Auth.VALIDATE_OTP)
     suspend fun validateOtp(
         @Query("phoneNumber") phoneNumber: String,
         @Query("code") code: String
-    ): OtpValidateResponse
+    ): BaseResponse<OtpValidateData>
 
-    @POST("api/mobile/users/register")
+    @POST(ApiPath.Auth.REGISTER)
     suspend fun register(
         @Body request: RegisterRequest,
         @Header("X-Registration-Token") registrationToken: String
-    ): RegisterResponse
+    ): BaseResponse<UserData>
 }

@@ -82,13 +82,13 @@ fun RegisterPinScreen(
 
                         try {
                             val res = registerService.registerUser(req, registrationToken)
-                            if (res.respCode == "00") {
+                            if (res.resp_code == "00") {
                                 snackbarHostState.showSnackbar("Registrasi berhasil!")
                                 navController.navigate("login") {
                                     popUpTo("registerPhone") { inclusive = true }
                                 }
                             } else {
-                                snackbarHostState.showSnackbar(res.respMessage)
+                                snackbarHostState.showSnackbar(res.resp_message)
                             }
                         } catch (e: Exception) {
                             snackbarHostState.showSnackbar("Gagal registrasi: ${e.localizedMessage}")

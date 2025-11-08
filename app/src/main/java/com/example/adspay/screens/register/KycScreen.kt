@@ -37,6 +37,7 @@ import androidx.compose.foundation.verticalScroll
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
+import com.example.adspay.constant.ApiConfig
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,8 +45,7 @@ fun KycFormScreen(navController: NavController) {
     val sessionManager = SessionManager(LocalContext.current)
     val token = sessionManager.getAccessToken()
     val context = LocalContext.current
-    val baseUrl = "http://38.47.94.165:3123"
-    val retrofit = remember { ApiClient.create(context, baseUrl) }
+    val retrofit = remember { ApiClient.create(context, ApiConfig.BASE_URL) }
     val apiService = remember { retrofit.create(UserService::class.java) }
     var showCamera by remember { mutableStateOf(false) }
 
