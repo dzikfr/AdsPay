@@ -46,4 +46,8 @@ object ApiPath {
         const val VALIDATE_QRIS = "api/mobile/qris/validate"
         const val PAY = "api/mobile/qris/pay"
     }
+
+    object Notification {
+        const val SEND_FCM_TOKEN = "api/mobile/qris/validate"
+    }
 }

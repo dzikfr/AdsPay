@@ -24,6 +24,10 @@ import com.example.adspay.ui.components.BiometricPromptActivity
 import android.content.Intent
 import androidx.activity.result.contract.ActivityResultContracts
 import com.example.adspay.constant.ApiConfig
+import android.content.pm.PackageManager
+import android.os.Build
+import com.google.firebase.messaging.FirebaseMessaging
+import android.util.Log
 
 class MainActivity : ComponentActivity() {
 
@@ -31,6 +35,14 @@ class MainActivity : ComponentActivity() {
     private lateinit var biometricLauncher: androidx.activity.result.ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), 1001)
+            }
+        }
+
         biometricLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == RESULT_OK) {
                 startDestinationState.value = "home"
@@ -39,8 +51,6 @@ class MainActivity : ComponentActivity() {
             }
             showMainContent()
         }
-
-        super.onCreate(savedInstanceState)
 
         val sessionManager = SessionManager(this)
 
@@ -124,6 +134,28 @@ fun MainScreen(
             }
             delay(30_000)
         }
+    }
+
+    FirebaseMessaging.getInstance().subscribeToTopic("promotion")
+        .addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                Log.d("FCM", "success promotion")
+            } else {
+                Log.e("FCM", "failed promotion", task.exception)
+            }
+        }
+
+    LaunchedEffect(Unit) {
+        FirebaseMessaging.getInstance().token
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val token = task.result
+                    Log.d("FCM", "🔥 FCM Token berhasil: $token")
+//                    Toast.makeText(context, "Token printed to Logcat", Toast.LENGTH_LONG).show()
+                } else {
+                    Log.e("FCM", "❌ Gagal ambil token", task.exception)
+                }
+            }
     }
 
     Scaffold(

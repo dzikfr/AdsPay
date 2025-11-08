@@ -1,6 +1,5 @@
 package com.example.adspay.models.history
 
-
 data class HistoryData(
     val content: List<HistoryItem>,
     val currentPage: Int,

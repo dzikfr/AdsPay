@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -45,10 +46,12 @@ dependencies {
     val composeBom = platform("androidx.compose:compose-bom:2025.05.00")
     implementation(composeBom)
     androidTestImplementation(composeBom)
-//    implementation(mapOf("name" to "facetec-sdk-10.0.15", "ext" to "aar"))
     implementation(libs.material3)
     implementation(libs.androidx.material)
     implementation(libs.androidx.foundation)
+    implementation(platform("com.google.firebase:firebase-bom:34.5.0"))
+    implementation("com.google.firebase:firebase-analytics")
+    implementation(libs.firebase.messaging)
     implementation(libs.ui)
     implementation(libs.ui.tooling.preview)
     debugImplementation(libs.ui.tooling)

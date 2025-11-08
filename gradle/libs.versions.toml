@@ -51,6 +51,7 @@ androidx-biometric = { group = "androidx.biometric", name = "biometric", version
 mlkit-face-detection = { group = "com.google.mlkit", name = "face-detection", version.ref = "mlkit_face_detection" }
 mlkit-text-recognition = { group = "com.google.mlkit", name = "text-recognition", version.ref = "mlkit_text_recognition" }
 androidx-camera-extensions = { group = "androidx.camera", name = "camera-extensions", version.ref = "cameraX" }
+firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging", version = "24.0.0" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

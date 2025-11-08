@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "856895495570",
+    "project_id": "adspay-a4fe6",
+    "storage_bucket": "adspay-a4fe6.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:856895495570:android:bb2aee289360b9ef17354b",
+        "android_client_info": {
+          "package_name": "com.example.adspay"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBzRGXvkA4eMR03x8_wbj4E5s0bgR9dzac"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
