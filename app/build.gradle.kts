@@ -55,6 +55,7 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.2.2")
     implementation("com.google.accompanist:accompanist-permissions:0.28.0")
     implementation("androidx.activity:activity-compose:1.8.0")
+    implementation("com.google.zxing:core:3.5.1")
     implementation(libs.firebase.messaging)
     implementation(libs.ui)
     implementation(libs.ui.tooling.preview)

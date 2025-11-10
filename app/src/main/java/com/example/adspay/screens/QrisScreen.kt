@@ -1,152 +1,200 @@
 package com.example.adspay.screens
 
+import android.Manifest
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.graphics.BitmapFactory
+import android.net.Uri
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Image
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import com.google.mlkit.vision.common.InputImage
-import androidx.compose.ui.unit.sp
-import com.google.mlkit.vision.barcode.BarcodeScanning
-import android.util.Log
+import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.core.content.ContextCompat
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.camera.core.CameraSelector
+import androidx.core.content.ContextCompat
+import com.google.zxing.*
+import com.google.zxing.common.HybridBinarizer
+import com.google.zxing.RGBLuminanceSource
+import java.util.concurrent.Executors
 
-
-@OptIn(androidx.camera.core.ExperimentalGetImage::class)
 @Composable
 fun QrisScreen() {
     val context = LocalContext.current
-    val coroutineScope = rememberCoroutineScope()
-    var qrText by remember { mutableStateOf("") }
-
-    val imagePickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri ->
-        uri?.let {
-            val source = InputImage.fromFilePath(context, it)
-            scanQrCode(source) { result ->
-                qrText = result
-            }
-        }
-    }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        Text("QRIS Scanner", fontSize = 24.sp, fontWeight = FontWeight.Bold)
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(
-            onClick = {
-                imagePickerLauncher.launch("image/*")
-            }
-        ) {
-            Icon(Icons.Default.Image, contentDescription = null)
-            Spacer(modifier = Modifier.width(8.dp))
-            Text("Pilih Gambar")
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        CameraPreview(modifier = Modifier.weight(1f)) { qrResult ->
-            qrText = qrResult
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text("Hasil QR:", fontWeight = FontWeight.Bold)
-        Text(qrText.ifEmpty { "Belum ada hasil" }, color = Color.Green)
-    }
-}
-
-@OptIn(androidx.camera.core.ExperimentalGetImage::class)
-@Composable
-fun CameraPreview(modifier: Modifier = Modifier, onQrScanned: (String) -> Unit) {
     val lifecycleOwner = LocalLifecycleOwner.current
-    val context = LocalContext.current
+    var scannedText by remember { mutableStateOf<String?>(null) }
 
-    AndroidView(
-        modifier = modifier,
-        factory = { ctx ->
-            val previewView = PreviewView(ctx)
-            val cameraProviderFuture = ProcessCameraProvider.getInstance(ctx)
+    // Camera permission check
+    var hasCameraPermission by remember {
+        mutableStateOf(
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.CAMERA
+            ) == PackageManager.PERMISSION_GRANTED
+        )
+    }
 
-            cameraProviderFuture.addListener({
-                val cameraProvider = cameraProviderFuture.get()
+    val cameraPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        hasCameraPermission = granted
+    }
 
-                val preview = Preview.Builder().build().also {
-                    it.setSurfaceProvider(previewView.surfaceProvider)
-                }
-
-                val analyzer = ImageAnalysis.Builder()
-                    .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-                    .build()
-
-                analyzer.setAnalyzer(ContextCompat.getMainExecutor(ctx)) { imageProxy ->
-                    @OptIn(androidx.camera.core.ExperimentalGetImage::class)
-                    val mediaImage = imageProxy.image
-                    if (mediaImage != null) {
-                        val image = InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
-                        scanQrCode(image) { result ->
-                            onQrScanned(result)
-                        }
-                    }
-                    imageProxy.close()
-                }
-
-
-                val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
-
-                try {
-                    cameraProvider.unbindAll()
-                    cameraProvider.bindToLifecycle(
-                        lifecycleOwner,
-                        cameraSelector,
-                        preview,
-                        analyzer
-                    )
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-            }, ContextCompat.getMainExecutor(ctx))
-
-            previewView
+    LaunchedEffect(Unit) {
+        if (!hasCameraPermission) {
+            cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
         }
-    )
-}
+    }
 
-fun scanQrCode(image: InputImage, onResult: (String) -> Unit) {
-    val scanner = BarcodeScanning.getClient()
+    // Gallery picker intent
+    val galleryLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val uri = result.data?.data ?: return@rememberLauncherForActivityResult
+        val inputStream = context.contentResolver.openInputStream(uri)
+        val bitmap = BitmapFactory.decodeStream(inputStream)
 
-    scanner.process(image)
-        .addOnSuccessListener { barcodes ->
-            for (barcode in barcodes) {
-                val value = barcode.rawValue
-                if (value != null) {
-                    onResult(value)
-                    break
+        val intArray = IntArray(bitmap.width * bitmap.height)
+        bitmap.getPixels(
+            intArray,
+            0,
+            bitmap.width,
+            0,
+            0,
+            bitmap.width,
+            bitmap.height
+        )
+        val source = RGBLuminanceSource(bitmap.width, bitmap.height, intArray)
+        val binaryBitmap = BinaryBitmap(HybridBinarizer(source))
+        val reader = MultiFormatReader()
+
+        try {
+            val result = reader.decode(binaryBitmap)
+            scannedText = result.text
+            Toast.makeText(context, "QR ditemukan: ${result.text}", Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            Toast.makeText(context, "QR tidak dapat dibaca dari gambar", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    Column(modifier = Modifier.fillMaxSize()) {
+        TextButton(
+            onClick = {
+                val intent = Intent(Intent.ACTION_PICK).apply {
+                    type = "image/*"
                 }
+                galleryLauncher.launch(intent)
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp)
+        ) {
+            Text("📷 Pick QR from Gallery")
+        }
+
+        if (hasCameraPermission) {
+            val previewView = remember { PreviewView(context) }
+            AndroidView(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .weight(1f),
+                factory = {
+                    previewView.also { view ->
+                        val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
+                        cameraProviderFuture.addListener({
+                            val cameraProvider = cameraProviderFuture.get()
+                            val preview = Preview.Builder().build().also {
+                                it.setSurfaceProvider(view.surfaceProvider)
+                            }
+
+                            val executor = Executors.newSingleThreadExecutor()
+                            val imageAnalysis = ImageAnalysis.Builder().build().apply {
+                                setAnalyzer(executor, QRCodeAnalyzer {
+                                    scannedText = it
+                                })
+                            }
+
+                            val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+                            cameraProvider.unbindAll()
+                            cameraProvider.bindToLifecycle(
+                                lifecycleOwner,
+                                cameraSelector,
+                                preview,
+                                imageAnalysis
+                            )
+                        }, ContextCompat.getMainExecutor(context))
+                    }
+                }
+            )
+        }
+
+        scannedText?.let {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.Black.copy(alpha = 0.7f))
+                    .padding(12.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = it,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
             }
         }
-        .addOnFailureListener {
-            Log.e("QRScanner", "Failed to scan: ${it.localizedMessage}")
-            onResult("Gagal scan QR")
+    }
+}
+
+class QRCodeAnalyzer(
+    private val onQRCodeScanned: (String) -> Unit
+) : ImageAnalysis.Analyzer {
+    private val reader = MultiFormatReader().apply {
+        setHints(mapOf(DecodeHintType.POSSIBLE_FORMATS to listOf(BarcodeFormat.QR_CODE)))
+    }
+
+    override fun analyze(imageProxy: androidx.camera.core.ImageProxy) {
+        val mediaImage = imageProxy.image ?: run {
+            imageProxy.close()
+            return
         }
+
+        val rotationDegrees = imageProxy.imageInfo.rotationDegrees
+        val buffer = mediaImage.planes[0].buffer
+        val bytes = ByteArray(buffer.remaining())
+        buffer.get(bytes)
+
+        val width = mediaImage.width
+        val height = mediaImage.height
+        val source = com.google.zxing.PlanarYUVLuminanceSource(
+            bytes, width, height, 0, 0, width, height, false
+        )
+        val binaryBitmap = BinaryBitmap(HybridBinarizer(source))
+
+        try {
+            val result = reader.decode(binaryBitmap)
+            onQRCodeScanned(result.text)
+        } catch (_: Exception) {
+        } finally {
+            imageProxy.close()
+        }
+    }
 }
